@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { addDoc, collection, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { FieldValue } from "firebase-admin/firestore"
+import { db } from "@/lib/firebase-admin"
 
 export async function POST(request: Request) {
   try {
@@ -23,18 +23,19 @@ export async function POST(request: Request) {
       )
     }
 
-    await addDoc(collection(db, "messages"), {
+    await db.collection("messages").add({
       name,
       email,
       phone,
       subject,
       message,
       status: "unread",
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     })
 
     return NextResponse.json({
       success: true,
+      message: "Your message has been sent successfully.",
     })
   } catch (error) {
     console.error("Contact message error:", error)
