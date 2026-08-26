@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 import Link from "next/link"
 import {
   ArrowRight,
@@ -8,12 +10,214 @@ import {
   Globe2,
   Users,
   Flame,
+  Eye,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import Navbar from "@/components/Navbar"
 import { ministries } from "@/data/ministries"
 
 const icons = [Globe2, Flame, Users]
+
+type MediaItem = {
+  id: string
+  url: string
+  title?: string
+  caption?: string
+}
+
+type Programme = {
+  id: string
+  title: string
+  description?: string
+  date: string
+  time?: string
+  venue?: string
+  category?: string
+  coverImage?: string
+  photos?: MediaItem[]
+  videos?: MediaItem[]
+}
+
+
+
+
+function ProgramsSection() {
+  const [programmes, setProgrammes] = useState<Programme[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadProgrammes() {
+      try {
+        const response = await fetch("/api/programmes")
+
+        if (!response.ok) {
+          throw new Error("Unable to load programmes.")
+        }
+
+        const data = await response.json()
+        setProgrammes(data.programmes || [])
+      } catch (error) {
+        console.error("Unable to load programmes:", error)
+        setProgrammes([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProgrammes()
+  }, [])
+
+  useEffect(() => {
+    if (currentIndex >= programmes.length && programmes.length > 0) {
+      setCurrentIndex(0)
+    }
+  }, [programmes.length, currentIndex])
+
+  const programme = programmes[currentIndex]
+
+  function previousProgramme() {
+    setCurrentIndex((current) =>
+      current === 0 ? programmes.length - 1 : current - 1
+    )
+  }
+
+  function nextProgramme() {
+    setCurrentIndex((current) =>
+      current === programmes.length - 1 ? 0 : current + 1
+    )
+  }
+
+  return (
+    <section
+      id="programs"
+      className="relative overflow-hidden bg-[#071B4D] px-6 py-28 lg:px-8"
+    >
+      <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#3B82F6]/10 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl">
+        <p className="mb-5 text-sm font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
+          Programs
+        </p>
+
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
+          <h2 className="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-6xl">
+            Watch, listen and experience what God is doing.
+          </h2>
+
+          {!loading && programmes.length > 0 && (
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={previousProgramme}
+                aria-label="Previous programme"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+              >
+                ←
+              </button>
+
+              <span className="min-w-[70px] text-center text-sm font-semibold text-white/70">
+                {currentIndex + 1} / {programmes.length}
+              </span>
+
+              <button
+                type="button"
+                onClick={nextProgramme}
+                aria-label="Next programme"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+              >
+                →
+              </button>
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center">
+            <p className="text-white/50">
+              Loading programmes...
+            </p>
+          </div>
+        ) : !programme ? (
+          <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center">
+            <p className="text-white/50">
+              No programmes have been published yet.
+            </p>
+          </div>
+        ) : (
+          <article className="mt-12 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.07] shadow-2xl backdrop-blur-xl">
+            <div className="grid lg:grid-cols-2">
+              {(() => {
+                const image =
+                  programme.coverImage ||
+                  programme.photos?.[0]?.url ||
+                  ""
+
+                return image ? (
+                  <div className="flex min-h-[280px] items-center justify-center overflow-hidden bg-white/5 p-4 sm:p-6 lg:min-h-[500px]">
+                    <img
+                      src={image}
+                      alt={programme.title}
+                      className="max-h-[600px] w-full rounded-2xl object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex min-h-[280px] items-center justify-center bg-gradient-to-br from-[#0B286B] to-[#071B4D] lg:min-h-[500px]">
+                    <Play size={60} className="text-[#D4AF37]" />
+                  </div>
+                )
+              })()}
+
+              <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+                {programme.category && (
+                  <span className="w-fit rounded-full bg-[#D4AF37] px-3 py-1.5 text-xs font-bold text-[#071B4D]">
+                    {programme.category}
+                  </span>
+                )}
+
+                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#D4AF37]">
+                  {programme.date}
+                </p>
+
+                <h3 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+                  {programme.title}
+                </h3>
+
+                {programme.description && (
+                  <p className="mt-5 text-sm leading-7 text-blue-100/60">
+                    {programme.description}
+                  </p>
+                )}
+
+                <div className="mt-6 flex flex-wrap gap-2 text-xs text-white/60">
+                  {programme.time && (
+                    <span className="rounded-full bg-white/5 px-3 py-2">
+                      {programme.time}
+                    </span>
+                  )}
+
+                  {programme.venue && (
+                    <span className="rounded-full bg-white/5 px-3 py-2">
+                      {programme.venue}
+                    </span>
+                  )}
+                </div>
+
+                <Link
+                  href={`/programmes/${programme.id}`}
+                  className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3.5 text-sm font-bold text-[#071B4D] transition hover:bg-[#F0D477]"
+                >
+                  View Programme
+                  <ArrowRight size={17} />
+                </Link>
+              </div>
+            </div>
+          </article>
+        )}
+      </div>
+    </section>
+  )
+}
 
 export default function Home() {
   return (
@@ -254,29 +458,7 @@ export default function Home() {
       </section>
 
       {/* PROGRAMS */}
-      <section
-        id="programs"
-        className="relative overflow-hidden bg-[#071B4D] px-6 py-28 lg:px-8"
-      >
-        <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#3B82F6]/10 blur-3xl" />
-
-        <div className="relative mx-auto max-w-7xl">
-          <p className="mb-5 text-sm font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
-            Programs
-          </p>
-
-          <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
-            <h2 className="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-6xl">
-              Watch, listen and experience what God is doing.
-            </h2>
-
-            <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/60 backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-[#D4AF37]" />
-              Latest programs coming soon
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProgramsSection />
 
       {/* CONTACT CTA */}
       <section className="px-6 py-24 lg:px-8">

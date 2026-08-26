@@ -1,0 +1,1397 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import {
+  CalendarDays,
+  Camera,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  FileText,
+  Image as ImageIcon,
+  LogOut,
+  MessageSquare,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Shield,
+  Trash2,
+  Upload,
+  UserPlus,
+  Video,
+  X,
+} from "lucide-react"
+
+type MediaItem = {
+  id: string
+  url: string
+  title?: string
+  caption?: string
+  uploadedBy?: string
+  uploadedAt?: string
+}
+
+type Programme = {
+  id: string
+  title: string
+  description?: string
+  date: string
+  time?: string
+  venue?: string
+  category?: string
+  published?: boolean
+  coverImage?: string
+  photos?: MediaItem[]
+  videos?: MediaItem[]
+  photoCount?: number
+  videoCount?: number
+}
+
+type Message = {
+  id: string
+  name?: string
+  email?: string
+  phone?: string
+  subject?: string
+  message?: string
+  createdAt?: any
+  read?: boolean
+}
+
+type Admin = {
+  id: string
+  username: string
+  name?: string
+  active?: boolean
+  createdAt?: any
+}
+
+export default function AdminDashboard({
+  username,
+}: {
+  username: string
+}) {
+  const [activeTab, setActiveTab] = useState("overview")
+  const [programmes, setProgrammes] = useState<Programme[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [admins, setAdmins] = useState<Admin[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const [selectedProgramme, setSelectedProgramme] =
+    useState<Programme | null>(null)
+  const [showProgrammeForm, setShowProgrammeForm] = useState(false)
+  const [editingProgramme, setEditingProgramme] =
+    useState<Programme | null>(null)
+  const [showAdminForm, setShowAdminForm] = useState(false)
+
+  const [programmeForm, setProgrammeForm] = useState({
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    venue: "",
+    category: "",
+  })
+
+  const [adminForm, setAdminForm] = useState({
+    username: "",
+    password: "",
+    name: "",
+  })
+
+  const [uploadingType, setUploadingType] = useState<
+    "photo" | "video" | null
+  >(null)
+
+  function clearNotice() {
+    setError("")
+    setSuccess("")
+  }
+
+  async function loadProgrammes() {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/admin/programmes", {
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load programmes.")
+      }
+
+      setProgrammes(data.programmes || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load programmes.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function loadMessages() {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/admin/messages", {
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load messages.")
+      }
+
+      setMessages(data.messages || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load messages.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function loadAdmins() {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/admin/admins", {
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load administrators.")
+      }
+
+      setAdmins(data.admins || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load administrators.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadProgrammes()
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === "messages") {
+      loadMessages()
+    }
+
+    if (activeTab === "admins") {
+      loadAdmins()
+    }
+
+    if (activeTab === "programmes") {
+      loadProgrammes()
+    }
+  }, [activeTab])
+
+  async function updateProgramme(event: React.FormEvent) {
+    event.preventDefault()
+    clearNotice()
+
+    if (!editingProgramme) return
+
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `/api/admin/programmes/${editingProgramme.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(programmeForm),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to update programme.")
+      }
+
+      setSuccess("Programme updated successfully.")
+
+      setProgrammeForm({
+        title: "",
+        description: "",
+        date: "",
+        time: "",
+        venue: "",
+        category: "",
+      })
+
+      setEditingProgramme(null)
+      setShowProgrammeForm(false)
+
+      await loadProgrammes()
+
+      if (selectedProgramme?.id === editingProgramme.id) {
+        setSelectedProgramme(data.programme)
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to update programme."
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function createProgramme(event: React.FormEvent) {
+    event.preventDefault()
+    clearNotice()
+
+    try {
+      setLoading(true)
+
+      const response = await fetch("/api/admin/programmes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(programmeForm),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to create programme.")
+      }
+
+      setSuccess("Programme created successfully.")
+      setProgrammeForm({
+        title: "",
+        description: "",
+        date: "",
+        time: "",
+        venue: "",
+        category: "",
+      })
+      setShowProgrammeForm(false)
+      await loadProgrammes()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to create programme.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function togglePublished(programme: Programme) {
+    clearNotice()
+
+    try {
+      const response = await fetch(`/api/admin/programmes/${programme.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          published: !programme.published,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to update programme.")
+      }
+
+      setSuccess(
+        programme.published
+          ? "Programme unpublished."
+          : "Programme published successfully."
+      )
+
+      await loadProgrammes()
+
+      if (selectedProgramme?.id === programme.id) {
+        setSelectedProgramme(data.programme)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update programme.")
+    }
+  }
+
+  async function deleteProgramme(programme: Programme) {
+    if (!confirm(`Delete "${programme.title}"? This cannot be undone.`)) {
+      return
+    }
+
+    clearNotice()
+
+    try {
+      setLoading(true)
+
+      const response = await fetch(`/api/admin/programmes/${programme.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to delete programme.")
+      }
+
+      setSuccess("Programme deleted successfully.")
+      setSelectedProgramme(null)
+      await loadProgrammes()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to delete programme.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function addMedia(
+    programme: Programme,
+    type: "photo" | "video",
+    url: string,
+    publicId?: string
+  ) {
+    clearNotice()
+
+    const currentPhotos = programme.photos?.length || 0
+    const currentVideos = programme.videos?.length || 0
+
+    if (type === "photo" && currentPhotos >= 5) {
+      setError("This programme already has the maximum of 5 pictures.")
+      return
+    }
+
+    if (type === "video" && currentVideos >= 2) {
+      setError("This programme already has the maximum of 2 videos.")
+      return
+    }
+
+    try {
+      setUploadingType(type)
+
+      const response = await fetch(
+        `/api/admin/programmes/${programme.id}/media`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            type,
+            url,
+            publicId: publicId || "",
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to save media.")
+      }
+
+      setSuccess(
+        type === "photo"
+          ? "Picture uploaded successfully."
+          : "Video uploaded successfully."
+      )
+
+      await loadProgrammes()
+
+      const refreshed = await fetch(
+        `/api/admin/programmes/${programme.id}`,
+        {
+          credentials: "include",
+        }
+      )
+
+      const refreshedData = await refreshed.json()
+
+      if (refreshed.ok) {
+        setSelectedProgramme(refreshedData.programme)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save media.")
+    } finally {
+      setUploadingType(null)
+    }
+  }
+
+  async function createAdmin(event: React.FormEvent) {
+    event.preventDefault()
+    clearNotice()
+
+    try {
+      setLoading(true)
+
+      const response = await fetch("/api/admin/admins", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(adminForm),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to add administrator.")
+      }
+
+      setSuccess("Administrator added successfully.")
+      setAdminForm({
+        username: "",
+        password: "",
+        name: "",
+      })
+      setShowAdminForm(false)
+      await loadAdmins()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to add administrator.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function deleteMessage(id: string) {
+    if (!confirm("Delete this message?")) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/messages/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to delete message.")
+      }
+
+      setSuccess("Message deleted.")
+      await loadMessages()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to delete message.")
+    }
+  }
+
+  async function logout() {
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      credentials: "include",
+    })
+
+    window.location.href = "/admin/login"
+  }
+
+  function formatDate(value: any) {
+    if (!value) return "No date"
+
+    try {
+      if (value._seconds) {
+        return new Date(value._seconds * 1000).toLocaleString()
+      }
+
+      return new Date(value).toLocaleString()
+    } catch {
+      return "No date"
+    }
+  }
+
+  return (
+    <main className="min-h-screen bg-[#07111F] px-4 py-6 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <header className="mb-6 rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#F4C542]">
+                COMI ADMINISTRATION
+              </p>
+
+              <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
+                Welcome, {username}
+              </h1>
+
+              <p className="mt-1 text-sm text-white/50">
+                Manage programmes, media, messages and administrators.
+              </p>
+            </div>
+
+            <button
+              onClick={logout}
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold hover:bg-white/15"
+            >
+              <LogOut size={17} />
+              Logout
+            </button>
+          </div>
+        </header>
+
+        {(error || success) && (
+          <div
+            className={`mb-5 rounded-2xl border px-4 py-3 text-sm ${
+              error
+                ? "border-red-400/20 bg-red-500/10 text-red-200"
+                : "border-green-400/20 bg-green-500/10 text-green-200"
+            }`}
+          >
+            {error || success}
+          </div>
+        )}
+
+        <nav className="mb-6 flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.04] p-2">
+          {[
+            ["overview", "Overview", FileText],
+            ["programmes", "Programmes", CalendarDays],
+            ["messages", "Messages", MessageSquare],
+            ["admins", "Administrators", Shield],
+          ].map(([id, label, Icon]: any) => (
+            <button
+              key={id}
+              onClick={() => {
+                clearNotice()
+                setActiveTab(id)
+              }}
+              className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                activeTab === id
+                  ? "bg-[#F4C542] text-[#07111F]"
+                  : "text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Icon size={17} />
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        {activeTab === "overview" && (
+          <section>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <DashboardCard
+                icon={<CalendarDays size={22} />}
+                title="Programmes"
+                value={programmes.length}
+                text="Create and manage church programmes."
+                onClick={() => setActiveTab("programmes")}
+              />
+
+              <DashboardCard
+                icon={<ImageIcon size={22} />}
+                title="Programme Media"
+                value={programmes.reduce(
+                  (total, item) => total + (item.photos?.length || 0),
+                  0
+                )}
+                text="Pictures and videos are stored through Cloudinary."
+                onClick={() => setActiveTab("programmes")}
+              />
+
+              <DashboardCard
+                icon={<MessageSquare size={22} />}
+                title="Messages"
+                value={messages.length}
+                text="View enquiries submitted through the contact form."
+                onClick={() => setActiveTab("messages")}
+              />
+
+              <DashboardCard
+                icon={<Shield size={22} />}
+                title="Administrators"
+                value={admins.length}
+                text="Add and manage administrator accounts."
+                onClick={() => setActiveTab("admins")}
+              />
+            </div>
+
+            <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
+              <h2 className="text-xl font-bold">Programme media limits</h2>
+
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex items-center gap-3">
+                    <Camera className="text-[#F4C542]" />
+                    <div>
+                      <p className="font-bold">Pictures</p>
+                      <p className="text-sm text-white/50">
+                        Maximum 5 pictures per programme
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex items-center gap-3">
+                    <Video className="text-[#F4C542]" />
+                    <div>
+                      <p className="font-bold">Videos</p>
+                      <p className="text-sm text-white/50">
+                        Maximum 2 videos per programme
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </section>
+        )}
+
+        {activeTab === "programmes" && (
+          <section>
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Programme Management</h2>
+                <p className="text-sm text-white/50">
+                  Create programmes and upload their pictures and videos.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={loadProgrammes}
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold"
+                >
+                  <RefreshCw size={16} />
+                  Refresh
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (showProgrammeForm) {
+                      setShowProgrammeForm(false)
+                      setEditingProgramme(null)
+                      return
+                    }
+
+                    setEditingProgramme(null)
+
+                    setProgrammeForm({
+                      title: "",
+                      description: "",
+                      date: "",
+                      time: "",
+                      venue: "",
+                      category: "",
+                    })
+
+                    setShowProgrammeForm(true)
+                  }}
+                  className="flex items-center gap-2 rounded-xl bg-[#F4C542] px-4 py-3 text-sm font-bold text-[#07111F]"
+                >
+                  <Plus size={17} />
+                  New Programme
+                </button>
+              </div>
+            </div>
+
+            {showProgrammeForm && (
+              <form
+                onSubmit={editingProgramme ? updateProgramme : createProgramme}
+                className="mb-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <h3 className="text-xl font-bold">
+                    {editingProgramme ? "Edit Programme" : "Create Programme"}
+                  </h3>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowProgrammeForm(false)}
+                  >
+                    <X />
+                  </button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    label="Programme title"
+                    value={programmeForm.title}
+                    onChange={(value) =>
+                      setProgrammeForm({ ...programmeForm, title: value })
+                    }
+                    required
+                  />
+
+                  <Input
+                    label="Category"
+                    value={programmeForm.category}
+                    onChange={(value) =>
+                      setProgrammeForm({ ...programmeForm, category: value })
+                    }
+                  />
+
+                  <Input
+                    label="Date"
+                    type="date"
+                    value={programmeForm.date}
+                    onChange={(value) =>
+                      setProgrammeForm({ ...programmeForm, date: value })
+                    }
+                    required
+                  />
+
+                  <Input
+                    label="Time"
+                    value={programmeForm.time}
+                    onChange={(value) =>
+                      setProgrammeForm({ ...programmeForm, time: value })
+                    }
+                  />
+
+                  <Input
+                    label="Venue"
+                    value={programmeForm.venue}
+                    onChange={(value) =>
+                      setProgrammeForm({ ...programmeForm, venue: value })
+                    }
+                  />
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-sm font-medium text-white/70">
+                      Description
+                    </label>
+
+                    <textarea
+                      value={programmeForm.description}
+                      onChange={(event) =>
+                        setProgrammeForm({
+                          ...programmeForm,
+                          description: event.target.value,
+                        })
+                      }
+                      rows={4}
+                      className="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 outline-none focus:border-[#F4C542]"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  disabled={loading}
+                  className="mt-5 rounded-xl bg-[#F4C542] px-5 py-3 font-bold text-[#07111F] disabled:opacity-50"
+                >
+                  {loading ? "Creating..." : "Create Programme"}
+                </button>
+              </form>
+            )}
+
+            {loading && programmes.length === 0 ? (
+              <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-10 text-center text-white/50">
+                Loading programmes...
+              </div>
+            ) : programmes.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center">
+                <CalendarDays className="mx-auto mb-3 text-white/30" size={35} />
+                <p className="font-semibold">No programmes yet.</p>
+                <p className="mt-1 text-sm text-white/40">
+                  Create your first programme above.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {programmes.map((programme) => (
+                  <ProgrammeItem
+                    key={programme.id}
+                    programme={programme}
+                    expanded={selectedProgramme?.id === programme.id}
+                    onOpen={() =>
+                      setSelectedProgramme(
+                        selectedProgramme?.id === programme.id
+                          ? null
+                          : programme
+                      )
+                    }
+                    onPublish={() => togglePublished(programme)}
+                    onDelete={() => deleteProgramme(programme)}
+                    uploadingType={uploadingType}
+                    setUploadingType={setUploadingType}
+                    addMedia={addMedia}
+                    onEdit={() => {
+                      setProgrammeForm({
+                        title: programme.title || "",
+                        description: programme.description || "",
+                        date: programme.date || "",
+                        time: programme.time || "",
+                        venue: programme.venue || "",
+                        category: programme.category || "",
+                      })
+                      setEditingProgramme(programme)
+                      setShowProgrammeForm(true)
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {activeTab === "messages" && (
+          <section>
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Contact Messages</h2>
+                <p className="text-sm text-white/50">
+                  Messages submitted through the website contact form.
+                </p>
+              </div>
+
+              <button
+                onClick={loadMessages}
+                className="rounded-xl border border-white/10 bg-white/10 p-3"
+              >
+                <RefreshCw size={17} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {messages.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center text-white/40">
+                  No messages found.
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className="rounded-3xl border border-white/10 bg-white/[0.06] p-5"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h3 className="font-bold">
+                          {message.subject || "Website Enquiry"}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-[#F4C542]">
+                          {message.name || "Unknown sender"}
+                        </p>
+
+                        <p className="mt-1 text-xs text-white/40">
+                          {message.email || ""}
+                          {message.phone ? ` • ${message.phone}` : ""}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => deleteMessage(message.id)}
+                        className="w-fit rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-red-300"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    </div>
+
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-white/70">
+                      {message.message}
+                    </p>
+
+                    <p className="mt-4 text-xs text-white/30">
+                      {formatDate(message.createdAt)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        )}
+
+        {activeTab === "admins" && (
+          <section>
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Administrators</h2>
+                <p className="text-sm text-white/50">
+                  Add and manage administrator login accounts.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowAdminForm(!showAdminForm)}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#F4C542] px-4 py-3 text-sm font-bold text-[#07111F]"
+              >
+                <UserPlus size={17} />
+                Add Admin
+              </button>
+            </div>
+
+            {showAdminForm && (
+              <form
+                onSubmit={createAdmin}
+                className="mb-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6"
+              >
+                <h3 className="mb-5 text-xl font-bold">
+                  Add Administrator
+                </h3>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Input
+                    label="Name"
+                    value={adminForm.name}
+                    onChange={(value) =>
+                      setAdminForm({ ...adminForm, name: value })
+                    }
+                  />
+
+                  <Input
+                    label="Username"
+                    value={adminForm.username}
+                    onChange={(value) =>
+                      setAdminForm({ ...adminForm, username: value })
+                    }
+                    required
+                  />
+
+                  <Input
+                    label="Password"
+                    type="password"
+                    value={adminForm.password}
+                    onChange={(value) =>
+                      setAdminForm({ ...adminForm, password: value })
+                    }
+                    required
+                  />
+                </div>
+
+                <button
+                  disabled={loading}
+                  className="mt-5 rounded-xl bg-[#F4C542] px-5 py-3 font-bold text-[#07111F]"
+                >
+                  {loading ? "Adding..." : "Add Administrator"}
+                </button>
+              </form>
+            )}
+
+            <div className="space-y-4">
+              {admins.map((admin) => (
+                <div
+                  key={admin.id}
+                  className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <h3 className="font-bold">
+                      {admin.name || admin.username}
+                    </h3>
+                    <p className="text-sm text-white/50">
+                      @{admin.username}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
+                      admin.active
+                        ? "bg-green-500/10 text-green-300"
+                        : "bg-red-500/10 text-red-300"
+                    }`}
+                  >
+                    {admin.active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </main>
+  )
+}
+
+function DashboardCard({
+  icon,
+  title,
+  value,
+  text,
+  onClick,
+}: {
+  icon: React.ReactNode
+  title: string
+  value: number
+  text: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 text-left transition hover:bg-white/[0.09]"
+    >
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F4C542] text-[#07111F]">
+        {icon}
+      </div>
+
+      <p className="text-sm text-white/50">{title}</p>
+      <p className="mt-1 text-3xl font-bold">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-white/50">{text}</p>
+    </button>
+  )
+}
+
+function Input({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required = false,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  type?: string
+  required?: boolean
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-white/70">
+        {label}
+      </label>
+
+      <input
+        type={type}
+        value={value}
+        required={required}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 outline-none focus:border-[#F4C542]"
+      />
+    </div>
+  )
+}
+
+function ProgrammeItem({
+  programme,
+  expanded,
+  onOpen,
+  onPublish,
+  onDelete,
+  onEdit,
+  uploadingType,
+  setUploadingType,
+  addMedia,
+}: {
+  programme: Programme
+  expanded: boolean
+  onOpen: () => void
+  onPublish: () => void
+  onDelete: () => void
+  onEdit: () => void
+  uploadingType: "photo" | "video" | null
+  setUploadingType: React.Dispatch<
+    React.SetStateAction<"photo" | "video" | null>
+  >
+  addMedia: (
+    programme: Programme,
+    type: "photo" | "video",
+    url: string,
+    publicId?: string
+  ) => Promise<void>
+}) {
+  const photos = programme.photos || []
+  const videos = programme.videos || []
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <button onClick={onOpen} className="text-left">
+          <div className="flex items-center gap-3">
+            <CalendarDays className="text-[#F4C542]" size={20} />
+
+            <div>
+              <h3 className="text-lg font-bold">{programme.title}</h3>
+
+              <p className="mt-1 text-sm text-white/50">
+                {programme.date}
+                {programme.time ? ` • ${programme.time}` : ""}
+                {programme.venue ? ` • ${programme.venue}` : ""}
+              </p>
+            </div>
+          </div>
+        </button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs">
+            📷 {photos.length}/5
+          </span>
+
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs">
+            🎥 {videos.length}/2
+          </span>
+
+          <button
+            onClick={onPublish}
+            className={`rounded-xl px-3 py-2 text-xs font-bold ${
+              programme.published
+                ? "bg-green-500/10 text-green-300"
+                : "bg-white/10 text-white/60"
+            }`}
+          >
+            <Eye size={15} className="mr-1 inline" />
+            {programme.published ? "Published" : "Unpublished"}
+          </button>
+
+          <button
+            onClick={onOpen}
+            className="rounded-xl border border-white/10 bg-white/10 p-2"
+          >
+            {expanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
+          </button>
+
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-semibold transition hover:bg-white/15"
+            title="Edit programme"
+          >
+            <Pencil size={16} />
+            Edit
+          </button>
+
+          <button
+            onClick={onDelete}
+            className="rounded-xl border border-red-400/20 bg-red-500/10 p-2 text-red-300"
+          >
+            <Trash2 size={17} />
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-6 border-t border-white/10 pt-6">
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-white/40">Category</p>
+              <p className="mt-1 text-sm">{programme.category || "General"}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-white/40">Venue</p>
+              <p className="mt-1 text-sm">{programme.venue || "Not specified"}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-white/40">Time</p>
+              <p className="mt-1 text-sm">{programme.time || "Not specified"}</p>
+            </div>
+          </div>
+
+          {programme.description && (
+            <p className="mb-6 text-sm leading-6 text-white/60">
+              {programme.description}
+            </p>
+          )}
+
+          <div className="mb-6 grid gap-3 sm:grid-cols-2">
+            <label
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-4 font-semibold transition hover:bg-white/15 ${
+                uploadingType === "photo" ? "pointer-events-none opacity-50" : ""
+              }`}
+            >
+              <Upload size={18} />
+              {uploadingType === "photo"
+                ? "Uploading picture..."
+                : `Upload Picture (${photos.length}/5)`}
+
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploadingType === "photo" || photos.length >= 5}
+                onChange={async (event) => {
+                  const file = event.target.files?.[0]
+                  event.target.value = ""
+
+                  if (!file) return
+
+                  if (photos.length >= 5) {
+                    alert("Maximum of 5 pictures per programme.")
+                    return
+                  }
+
+                  try {
+                    setUploadingType("photo")
+                    clearNotice()
+
+                    const formData = new FormData()
+                    formData.append("file", file)
+                    formData.append(
+                      "upload_preset",
+                      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
+                    )
+                    formData.append("folder", "comi/programmes")
+
+                    const cloudinaryName =
+                      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+
+                    const uploadResponse = await fetch(
+                      `https://api.cloudinary.com/v1_1/${cloudinaryName}/image/upload`,
+                      {
+                        method: "POST",
+                        body: formData,
+                      }
+                    )
+
+                    const uploadData = await uploadResponse.json()
+
+                    if (!uploadResponse.ok || !uploadData.secure_url) {
+                      throw new Error(
+                        uploadData.error?.message ||
+                          "Unable to upload picture to Cloudinary."
+                      )
+                    }
+
+                    await addMedia(
+                      programme,
+                      "photo",
+                      uploadData.secure_url,
+                      uploadData.public_id
+                    )
+                  } catch (err) {
+                    setError(
+                      err instanceof Error
+                        ? err.message
+                        : "Unable to upload picture."
+                    )
+                  } finally {
+                    setUploadingType(null)
+                  }
+                }}
+              />
+            </label>
+
+            <label
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-4 font-semibold transition hover:bg-white/15 ${
+                uploadingType === "video" ? "pointer-events-none opacity-50" : ""
+              }`}
+            >
+              <Upload size={18} />
+              {uploadingType === "video"
+                ? "Uploading video..."
+                : `Upload Video (${videos.length}/2)`}
+
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                disabled={uploadingType === "video" || videos.length >= 2}
+                onChange={async (event) => {
+                  const file = event.target.files?.[0]
+                  event.target.value = ""
+
+                  if (!file) return
+
+                  if (videos.length >= 2) {
+                    alert("Maximum of 2 videos per programme.")
+                    return
+                  }
+
+                  try {
+                    setUploadingType("video")
+                    clearNotice()
+
+                    const formData = new FormData()
+                    formData.append("file", file)
+                    formData.append(
+                      "upload_preset",
+                      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
+                    )
+                    formData.append("folder", "comi/programmes")
+
+                    const cloudinaryName =
+                      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+
+                    const uploadResponse = await fetch(
+                      `https://api.cloudinary.com/v1_1/${cloudinaryName}/video/upload`,
+                      {
+                        method: "POST",
+                        body: formData,
+                      }
+                    )
+
+                    const uploadData = await uploadResponse.json()
+
+                    if (!uploadResponse.ok || !uploadData.secure_url) {
+                      throw new Error(
+                        uploadData.error?.message ||
+                          "Unable to upload video to Cloudinary."
+                      )
+                    }
+
+                    await addMedia(
+                      programme,
+                      "video",
+                      uploadData.secure_url,
+                      uploadData.public_id
+                    )
+                  } catch (err) {
+                    setError(
+                      err instanceof Error
+                        ? err.message
+                        : "Unable to upload video."
+                    )
+                  } finally {
+                    setUploadingType(null)
+                  }
+                }}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <h4 className="mb-3 flex items-center gap-2 font-bold">
+                <ImageIcon size={17} />
+                Pictures
+              </h4>
+
+              {photos.length === 0 ? (
+                <p className="text-sm text-white/30">
+                  No pictures uploaded.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {photos.map((photo) => (
+                    <img
+                      key={photo.id}
+                      src={photo.url}
+                      alt={photo.title || programme.title}
+                      className="aspect-video w-full rounded-xl object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h4 className="mb-3 flex items-center gap-2 font-bold">
+                <Video size={17} />
+                Videos
+              </h4>
+
+              {videos.length === 0 ? (
+                <p className="text-sm text-white/30">
+                  No videos uploaded.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {videos.map((video) => (
+                    <video
+                      key={video.id}
+                      src={video.url}
+                      controls
+                      className="w-full rounded-xl"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
