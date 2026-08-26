@@ -6,32 +6,20 @@ const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
 
 let privateKey = process.env.FIREBASE_PRIVATE_KEY
 
-if (!privateKey && process.env.FIREBASE_PRIVATE_KEY_BASE64) {
-  privateKey = Buffer.from(
-    process.env.FIREBASE_PRIVATE_KEY_BASE64,
-    "base64"
-  ).toString("utf8")
+if (!projectId || !clientEmail || !privateKey) {
+  throw new Error("Missing Firebase Admin environment variables.")
 }
 
 privateKey = privateKey
-  ?.replace(/\\n/g, "\n")
-  .replace(/\\r/g, "")
-  .replace(/\r\n/g, "\n")
+  .replace(/\\n/g, "\n")
+  .replace(/^"(.*)"$/, "$1")
   .trim()
 
-if (!projectId || !clientEmail || !privateKey) {
-  throw new Error(
-    "Missing Firebase Admin environment variables."
-  )
-}
-
 if (
-  !privateKey.startsWith("-----BEGIN PRIVATE KEY-----") ||
+  !privateKey.includes("-----BEGIN PRIVATE KEY-----") ||
   !privateKey.includes("-----END PRIVATE KEY-----")
 ) {
-  throw new Error(
-    "Firebase private key format is invalid."
-  )
+  throw new Error("Firebase private key format is invalid.")
 }
 
 const firebaseAdminApp =
