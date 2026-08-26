@@ -1,44 +1,67 @@
 import { cert, getApps, initializeApp } from "firebase-admin/app"
 import { getFirestore } from "firebase-admin/firestore"
 
-function getPrivateKey() {
-  const encoded = process.env.FIREBASE_PRIVATE_KEY_BASE64
+const projectId = process.env.FIREBASE_PROJECT_ID
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
 
-  if (encoded) {
+function getFirebasePrivateKey() {
+  const base64Key = process.env.FIREBASE_PRIVATE_KEY_BASE64
+
+  if (base64Key) {
     try {
-      return Buffer.from(encoded, "base64").toString("utf8")
-    } catch {
+      const decodedKey = Buffer.from(base64Key.trim(), "base64").toString("utf8")
+
+      const normalizedKey = decodedKey
+        .replace(/^["']|["']$/g, "")
+        .replace(/\\n/g, "\n")
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "")
+        .trim()
+
+      if (
+        normalizedKey.includes("-----BEGIN PRIVATE KEY-----") &&
+        normalizedKey.includes("-----END PRIVATE KEY-----")
+      ) {
+        return normalizedKey
+      }
+
+      throw new Error("Decoded Firebase private key has an invalid PEM format.")
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Unable to decode Firebase private key: ${error.message}`)
+      }
+
       throw new Error("Unable to decode Firebase private key.")
     }
   }
 
-  const raw = process.env.FIREBASE_PRIVATE_KEY
+  const legacyKey = process.env.FIREBASE_PRIVATE_KEY
 
-  if (!raw) {
-    return ""
+  if (legacyKey) {
+    const normalizedKey = legacyKey
+      .replace(/^["']|["']$/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "")
+      .trim()
+
+    if (
+      normalizedKey.includes("-----BEGIN PRIVATE KEY-----") &&
+      normalizedKey.includes("-----END PRIVATE KEY-----")
+    ) {
+      return normalizedKey
+    }
   }
 
-  return raw
-    .trim()
-    .replace(/^["']|["']$/g, "")
-    .replace(/\\\\n/g, "\n")
-    .replace(/\\n/g, "\n")
-    .replace(/\\r/g, "")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "")
-    .trim()
+  return null
 }
 
-const projectId = process.env.FIREBASE_PROJECT_ID?.trim()
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim()
-const privateKey = getPrivateKey()
+const privateKey = getFirebasePrivateKey()
 
 if (!projectId || !clientEmail || !privateKey) {
-  throw new Error("Missing Firebase Admin environment variables.")
-}
-
-if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-  throw new Error("Invalid Firebase private key format.")
+  throw new Error(
+    "Missing Firebase Admin environment variables."
+  )
 }
 
 const firebaseAdminApp =
