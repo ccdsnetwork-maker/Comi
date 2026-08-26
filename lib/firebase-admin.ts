@@ -6,6 +6,13 @@ const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
 
 let privateKey = process.env.FIREBASE_PRIVATE_KEY
 
+if (!privateKey && process.env.FIREBASE_PRIVATE_KEY_BASE64) {
+  privateKey = Buffer.from(
+    process.env.FIREBASE_PRIVATE_KEY_BASE64,
+    "base64"
+  ).toString("utf-8")
+}
+
 if (!projectId || !clientEmail || !privateKey) {
   throw new Error("Missing Firebase Admin environment variables.")
 }
