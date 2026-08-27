@@ -244,6 +244,30 @@ export default function Home() {
               transition={{ duration: 0.9 }}
             >
               <motion.div
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mb-6 flex items-center gap-4"
+              >
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#D4AF37]/30 bg-white shadow-xl">
+                  <img
+                    src="/images/comi.jpg"
+                    alt="COMI logo"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-lg font-bold tracking-wide text-white">
+                    COMI
+                  </p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                    Continental Outreach Ministries Int&apos;l
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}

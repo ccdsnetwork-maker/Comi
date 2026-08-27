@@ -68,17 +68,21 @@ export default function Footer() {
           {/* BRAND */}
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37] font-black text-[#06183F]">
-                C
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+                <img
+                  src="/images/comi.jpg"
+                  alt="COMI logo"
+                  className="h-full w-full object-cover"
+                />
               </div>
 
               <div>
                 <p className="font-bold leading-tight">
-                  Continental Outreach
+                  COMI
                 </p>
 
                 <p className="text-xs text-white/80">
-                  Ministries Int&apos;l
+                  Continental Outreach Ministries Int&apos;l
                 </p>
               </div>
             </div>

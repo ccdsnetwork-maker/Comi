@@ -14,26 +14,33 @@ export default function Navbar() {
     <header className="fixed left-0 right-0 top-0 z-50 px-4 pt-4 sm:px-6">
       <nav className="mx-auto max-w-7xl rounded-2xl border border-white/10 bg-[#071B4D]/90 px-4 py-3 shadow-2xl backdrop-blur-xl">
         <div className="flex items-center justify-between">
+
           <Link
             href="/"
             onClick={() => setOpen(false)}
             className="flex items-center gap-3"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#D4AF37] text-xl font-black text-[#071B4D]">
-              C
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+              <img
+                src="/images/comi.jpg"
+                alt="COMI logo"
+                className="h-full w-full object-cover"
+              />
             </div>
 
-            <div className="hidden sm:block">
+            <div>
               <p className="text-sm font-bold text-white">
-                CONTINENTAL OUTREACH
+                COMI
               </p>
+
               <p className="text-[10px] tracking-[0.2em] text-[#D4AF37]">
-                MINISTRIES INT&apos;L
+                CONTINENTAL OUTREACH
               </p>
             </div>
           </Link>
 
           <div className="hidden items-center gap-8 md:flex">
+
             <Link
               href="/"
               className="text-sm text-white/80 transition hover:text-[#D4AF37]"
@@ -47,6 +54,7 @@ export default function Navbar() {
                 className="flex items-center gap-1 text-sm text-white/80 transition hover:text-[#D4AF37]"
               >
                 Ministries
+
                 <ChevronDown
                   size={15}
                   className={`transition-transform ${
@@ -111,6 +119,7 @@ export default function Navbar() {
               className="overflow-hidden md:hidden"
             >
               <div className="space-y-2 pb-2 pt-5">
+
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
@@ -149,6 +158,7 @@ export default function Navbar() {
                 >
                   Contact Us
                 </Link>
+
               </div>
             </motion.div>
           )}

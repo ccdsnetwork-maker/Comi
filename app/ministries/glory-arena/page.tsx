@@ -75,22 +75,12 @@ export default function GloryArenaPage() {
                 className="absolute h-72 w-72 rounded-full bg-[#D4AF37]/10 blur-3xl"
               />
 
-              <div className="relative flex h-64 w-64 items-center justify-center rounded-full border border-[#D4AF37]/30 bg-gradient-to-br from-[#0B286B] to-[#071B4D] shadow-2xl sm:h-80 sm:w-80">
-                <div className="text-center">
-                  <Flame
-                    size={85}
-                    strokeWidth={1}
-                    className="mx-auto text-[#D4AF37]"
-                  />
-
-                  <p className="mt-5 text-xs uppercase tracking-[0.4em] text-blue-200/60">
-                    Encounter
-                  </p>
-
-                  <p className="mt-2 text-2xl font-bold text-white">
-                    His Glory
-                  </p>
-                </div>
+              <div className="relative flex h-64 w-64 items-center justify-center rounded-full border border-[#D4AF37]/30 bg-gradient-to-br from-[#0B286B] to-[#071B4D] p-6 shadow-2xl sm:h-80 sm:w-80">
+                <img
+                  src="/images/glory.png"
+                  alt="The Glory Arena Global"
+                  className="h-full w-full rounded-full object-contain"
+                />
               </div>
 
               <motion.div

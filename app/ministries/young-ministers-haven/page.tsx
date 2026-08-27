@@ -82,10 +82,10 @@ export default function YoungMinistersHavenPage() {
 
               <div className="absolute inset-12 flex items-center justify-center rounded-[30%] bg-gradient-to-br from-[#0B286B] to-[#071B4D] shadow-2xl">
                 <div className="text-center">
-                  <GraduationCap
-                    size={80}
-                    strokeWidth={1}
-                    className="mx-auto text-[#D4AF37]"
+                  <img
+                    src="/images/young.jpg"
+                    alt="Young Ministers Haven logo"
+                    className="mx-auto h-48 w-48 rounded-2xl object-contain sm:h-60 sm:w-60"
                   />
 
                   <p className="mt-5 text-xs uppercase tracking-[0.35em] text-blue-200/60">

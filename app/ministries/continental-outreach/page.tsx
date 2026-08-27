@@ -85,22 +85,12 @@ export default function ContinentalOutreachPage() {
                 className="absolute inset-0 rounded-full border border-dashed border-[#D4AF37]/30"
               />
 
-              <div className="absolute inset-10 flex items-center justify-center rounded-full border border-[#3B82F6]/30 bg-[#0B286B]/50 backdrop-blur-xl">
-                <div className="text-center">
-                  <Globe2
-                    size={80}
-                    strokeWidth={1}
-                    className="mx-auto text-[#D4AF37]"
-                  />
-
-                  <p className="mt-5 text-sm font-semibold uppercase tracking-[0.35em] text-white">
-                    Beyond
-                  </p>
-
-                  <p className="mt-2 text-2xl font-bold text-[#D4AF37]">
-                    Boundaries
-                  </p>
-                </div>
+              <div className="absolute inset-10 flex items-center justify-center rounded-full border border-[#3B82F6]/30 bg-[#0B286B]/50 p-8 backdrop-blur-xl">
+                <img
+                  src="/images/comi.jpg"
+                  alt="Continental Outreach Ministries International"
+                  className="h-full w-full rounded-full object-contain"
+                />
               </div>
 
               <motion.div
