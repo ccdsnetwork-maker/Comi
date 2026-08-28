@@ -10,7 +10,7 @@ import {
 const socialLinks = [
   {
     name: "Facebook",
-    href: "https://facebook.com/comiconnects",
+    href: "https://www.facebook.com/COMICONNECTs",
     icon: FaFacebookF,
   },
   {
@@ -25,7 +25,7 @@ const socialLinks = [
   },
   {
     name: "YouTube",
-    href: "https://youtube.com/@comiconnects",
+    href: "https://youtube.com/@comiconnects373",
     icon: FaYoutube,
   },
   {
@@ -77,12 +77,8 @@ export default function Footer() {
               </div>
 
               <div>
-                <p className="font-bold leading-tight">
-                  COMI
-                </p>
-
-                <p className="text-xs text-white/80">
-                  Continental Outreach Ministries Int&apos;l
+                <p className="max-w-[230px] font-bold leading-tight">
+                  Continental Outreach Ministries International
                 </p>
               </div>
             </div>

@@ -1,0 +1,40 @@
+[debug] [2026-08-26T21:25:23.080Z] ----------------------------------------------------------------------
+[debug] [2026-08-26T21:25:23.092Z] Command:       /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/firebase login --no-localhost
+[debug] [2026-08-26T21:25:23.093Z] CLI Version:   15.28.1
+[debug] [2026-08-26T21:25:23.094Z] Platform:      android
+[debug] [2026-08-26T21:25:23.095Z] Node Version:  v24.17.0
+[debug] [2026-08-26T21:25:23.095Z] Detected Agent: unknown
+[debug] [2026-08-26T21:25:23.096Z] Time:          Wed Aug 26 2026 22:25:23 GMT+0100 (West Africa Time)
+[debug] [2026-08-26T21:25:23.096Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-26T21:25:23.220Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data 
+[debug] [2026-08-26T21:25:28.593Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-08-26T21:25:28.594Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] 
+[info] i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you. 
+[debug] [2026-08-26T21:25:42.314Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2026-08-26T21:25:42.315Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"5ac34afd-a175-499f-8f10-7315c25d20ea"}
+[debug] [2026-08-26T21:25:46.382Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2026-08-26T21:25:46.383Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"bUCaQQQ9Ed8MAqlggUfUV_mBnrgFD4YUKJd7wYPbcx8"}
+[info] 
+[info] To sign in to the Firebase CLI:
+[info] 
+[info] 1. Take note of your session ID:
+[info] 
+[info]    5AC34
+[info] 
+[info] 2. Visit the URL below on any device and follow the instructions to get your code:
+[info] 
+[info]    https://auth.firebase.tools/login?code_challenge=86i2m44RLnloZKIPCA2iy3BDmoEtXr5Bqr7MFr1ZYyg&session=5ac34afd-a175-499f-8f10-7315c25d20ea&attest=bUCaQQQ9Ed8MAqlggUfUV_mBnrgFD4YUKJd7wYPbcx8
+[info] 
+[info] 3. Paste or enter the authorization code below once you have it:
+[info] 
+[debug] [2026-08-26T21:48:47.538Z] Error: setRawMode EIO
+    at ReadStream.setRawMode (node:tty:81:24)
+    at [_setRawMode] [as _setRawMode] (node:internal/readline/interface:418:18)
+    at Interface.close (node:internal/readline/interface:552:24)
+    at ReadStream.ontermend (node:internal/readline/interface:280:10)
+    at ReadStream.emit (node:events:521:24)
+    at endReadableNT (node:internal/streams/readable:1735:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)

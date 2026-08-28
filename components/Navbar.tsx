@@ -29,12 +29,8 @@ export default function Navbar() {
             </div>
 
             <div>
-              <p className="text-sm font-bold text-white">
-                COMI
-              </p>
-
-              <p className="text-[10px] tracking-[0.2em] text-[#D4AF37]">
-                CONTINENTAL OUTREACH
+              <p className="max-w-[190px] text-sm font-bold leading-tight text-white sm:max-w-none">
+                Continental Outreach Ministries International
               </p>
             </div>
           </Link>
@@ -94,6 +90,13 @@ export default function Navbar() {
             </Link>
 
             <Link
+              href="/downloads"
+              className="text-sm text-white/80 transition hover:text-[#D4AF37]"
+            >
+              Downloads
+            </Link>
+
+            <Link
               href="/contact"
               className="rounded-full bg-[#D4AF37] px-5 py-2.5 text-sm font-semibold text-[#071B4D] transition hover:scale-105 hover:bg-[#F0D477]"
             >
@@ -149,6 +152,14 @@ export default function Navbar() {
                   className="block rounded-xl px-4 py-3 text-white/80 hover:bg-white/10"
                 >
                   Programs
+                </Link>
+
+                <Link
+                  href="/downloads"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-4 py-3 text-white/80 hover:bg-white/10"
+                >
+                  Downloads
                 </Link>
 
                 <Link

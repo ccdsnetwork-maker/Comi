@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import AudioManager from "./AudioManager"
 import {
   CalendarDays,
   Camera,
@@ -8,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  FileAudio,
   FileText,
   Image as ImageIcon,
   LogOut,
@@ -26,6 +28,7 @@ import {
 type MediaItem = {
   id: string
   url: string
+  publicId?: string
   title?: string
   caption?: string
   uploadedBy?: string
@@ -469,6 +472,64 @@ export default function AdminDashboard({
   }
 
 
+  async function deleteMedia(
+    programme: Programme,
+    type: "photo" | "video",
+    mediaId: string
+  ) {
+    const label = type === "photo" ? "picture" : "video"
+
+    if (!confirm(`Delete this ${label}? This cannot be undone.`)) {
+      return
+    }
+
+    clearNotice()
+
+    try {
+      setUploadingType(type)
+
+      const response = await fetch(
+        `/api/admin/programmes/${programme.id}/media`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            type,
+            mediaId,
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || `Unable to delete ${label}.`
+        )
+      }
+
+      setSuccess(
+        type === "photo"
+          ? "Picture deleted successfully."
+          : "Video deleted successfully."
+      )
+
+      await loadProgrammes()
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Unable to delete ${label}.`
+      )
+    } finally {
+      setUploadingType(null)
+    }
+  }
+
+
   async function updateMyAccount(event: React.FormEvent) {
     event.preventDefault()
     clearNotice()
@@ -643,6 +704,7 @@ export default function AdminDashboard({
           {[
             ["overview", "Overview", FileText],
             ["programmes", "Programmes", CalendarDays],
+            ["audio", "Audio", FileAudio],
             ["messages", "Messages", MessageSquare],
             ["admins", "Administrators", Shield],
             ["account", "My Account", Shield],
@@ -907,6 +969,7 @@ export default function AdminDashboard({
                     setError={setError}
                     clearNotice={clearNotice}
                     addMedia={addMedia}
+                    deleteMedia={deleteMedia}
                     onEdit={async () => {
                       setProgrammeForm({
                         title: programme.title || "",
@@ -970,6 +1033,10 @@ export default function AdminDashboard({
               </div>
             )}
           </section>
+        )}
+
+        {activeTab === "audio" && (
+          <AudioManager />
         )}
 
         {activeTab === "messages" && (
@@ -1277,6 +1344,7 @@ function ProgrammeItem({
   setError,
   clearNotice,
   addMedia,
+  deleteMedia,
 }: {
   programme: Programme
   expanded: boolean
@@ -1295,6 +1363,11 @@ function ProgrammeItem({
     type: "photo" | "video",
     url: string,
     publicId?: string
+  ) => Promise<void>
+  deleteMedia: (
+    programme: Programme,
+    type: "photo" | "video",
+    mediaId: string
   ) => Promise<void>
 }) {
   const photos = programme.photos || []
@@ -1560,12 +1633,28 @@ function ProgrammeItem({
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {photos.map((photo) => (
-                    <img
+                    <div
                       key={photo.id}
-                      src={photo.url}
-                      alt={photo.title || programme.title}
-                      className="aspect-video w-full rounded-xl object-cover"
-                    />
+                      className="group relative overflow-hidden rounded-xl"
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.title || programme.title}
+                        className="aspect-video w-full object-cover"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteMedia(programme, "photo", photo.id)
+                        }
+                        disabled={uploadingType !== null}
+                        title="Delete picture"
+                        className="absolute right-2 top-2 rounded-lg border border-red-400/30 bg-red-500/90 p-2 text-white opacity-100 transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:opacity-0 sm:group-hover:opacity-100"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -1584,12 +1673,28 @@ function ProgrammeItem({
               ) : (
                 <div className="space-y-3">
                   {videos.map((video) => (
-                    <video
+                    <div
                       key={video.id}
-                      src={video.url}
-                      controls
-                      className="w-full rounded-xl"
-                    />
+                      className="group relative overflow-hidden rounded-xl"
+                    >
+                      <video
+                        src={video.url}
+                        controls
+                        className="w-full rounded-xl"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteMedia(programme, "video", video.id)
+                        }
+                        disabled={uploadingType !== null}
+                        title="Delete video"
+                        className="absolute right-2 top-2 rounded-lg border border-red-400/30 bg-red-500/90 p-2 text-white opacity-100 transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:opacity-0 sm:group-hover:opacity-100"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}

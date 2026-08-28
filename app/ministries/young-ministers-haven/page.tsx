@@ -51,8 +51,8 @@ export default function YoungMinistersHavenPage() {
               </h1>
 
               <p className="mt-7 max-w-xl text-lg leading-8 text-blue-100/70">
-                Raising, equipping and empowering the next generation of
-                ministers to serve God and impact their world.
+                Raising spiritual giants equipped to serve God, lead with purpose
+                and impact their generation.
               </p>
 
               <Link
@@ -89,11 +89,11 @@ export default function YoungMinistersHavenPage() {
                   />
 
                   <p className="mt-5 text-xs uppercase tracking-[0.35em] text-blue-200/60">
-                    Raise
+                    Our Slogan
                   </p>
 
                   <p className="mt-2 text-2xl font-bold text-white">
-                    The Next Generation
+                    Raising Spiritual Giants
                   </p>
                 </div>
               </div>

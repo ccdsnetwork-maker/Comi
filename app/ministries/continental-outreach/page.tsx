@@ -55,9 +55,9 @@ export default function ContinentalOutreachPage() {
               </h1>
 
               <p className="mt-7 max-w-xl text-lg leading-8 text-blue-100/70">
-                Taking the Gospel beyond boundaries, reaching lives and
-                connecting communities with the transforming message of Jesus
-                Christ.
+                Igniting the world through the Word and spreading the transforming
+                message of Jesus Christ across communities, territories and
+                nations.
               </p>
 
               <Link

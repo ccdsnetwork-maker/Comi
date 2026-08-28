@@ -302,13 +302,15 @@ export default function Home() {
                   />
                 </Link>
 
-                <Link
-                  href="#programs"
+                <a
+                  href="https://youtube.com/@comiconnects373"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 rounded-full border border-white/20 bg-white/5 px-7 py-4 font-medium text-white backdrop-blur transition hover:bg-white/10"
                 >
                   <Play size={17} />
-                  Watch Programs
-                </Link>
+                  Watch Us Live
+                </a>
               </div>
             </motion.div>
 
