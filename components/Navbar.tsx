@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { Menu, X, ChevronDown, HeartHandshake } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ministries } from "@/data/ministries"
@@ -35,7 +35,8 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-8 md:flex">
+          {/* DESKTOP NAVIGATION */}
+          <div className="hidden items-center gap-6 lg:flex">
 
             <Link
               href="/"
@@ -71,7 +72,10 @@ export default function Navbar() {
                       <Link
                         key={ministry.id}
                         href={ministry.route}
-                        onClick={() => setMinistriesOpen(false)}
+                        onClick={() => {
+                          setMinistriesOpen(false)
+                          setOpen(false)
+                        }}
                         className="block rounded-xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-[#D4AF37]"
                       >
                         {ministry.name}
@@ -96,6 +100,15 @@ export default function Navbar() {
               Downloads
             </Link>
 
+            {/* PARTNER WITH US */}
+            <Link
+              href="/partner"
+              className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-4 py-2.5 text-sm font-semibold text-[#F0D477] transition hover:bg-[#D4AF37] hover:text-[#071B4D]"
+            >
+              <HeartHandshake size={16} />
+              Partner With Us
+            </Link>
+
             <Link
               href="/contact"
               className="rounded-full bg-[#D4AF37] px-5 py-2.5 text-sm font-semibold text-[#071B4D] transition hover:scale-105 hover:bg-[#F0D477]"
@@ -104,6 +117,7 @@ export default function Navbar() {
             </Link>
           </div>
 
+          {/* MOBILE MENU BUTTON */}
           <button
             onClick={() => setOpen(!open)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-white md:hidden"
@@ -113,6 +127,7 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* MOBILE NAVIGATION */}
         <AnimatePresence>
           {open && (
             <motion.div
@@ -160,6 +175,16 @@ export default function Navbar() {
                   className="block rounded-xl px-4 py-3 text-white/80 hover:bg-white/10"
                 >
                   Downloads
+                </Link>
+
+                {/* MOBILE PARTNER LINK */}
+                <Link
+                  href="/partner"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-xl bg-[#D4AF37]/10 px-4 py-3 font-semibold text-[#F0D477] hover:bg-[#D4AF37] hover:text-[#071B4D]"
+                >
+                  <HeartHandshake size={18} />
+                  Partner With Us
                 </Link>
 
                 <Link

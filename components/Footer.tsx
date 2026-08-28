@@ -42,15 +42,31 @@ const quickLinks = [
   },
   {
     label: "Continental Outreach Ministries",
-    href: "/continental-outreach",
+    href: "/ministries/continental-outreach",
   },
   {
     label: "The Glory Arena Global",
-    href: "/glory-arena",
+    href: "/ministries/glory-arena",
   },
   {
     label: "Young Ministers Haven",
-    href: "/young-ministers-haven",
+    href: "/ministries/young-ministers-haven",
+  },
+  {
+    label: "Partner With Us",
+    href: "/partner",
+  },
+  {
+    label: "Downloads",
+    href: "/downloads",
+  },
+  {
+    label: "Partner With Us",
+    href: "/partner-with-us",
+  },
+  {
+    label: "Team Lead",
+    href: "/team-lead",
   },
   {
     label: "Contact Us",
